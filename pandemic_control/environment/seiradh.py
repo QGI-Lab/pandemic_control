@@ -60,14 +60,18 @@ class SEIRADH_Env(Base_Env):
             self.sigma = 0.1
 
         
-        # Probabilities
-        if not hasattr(self, f"probs"):
-            self.probs = [
+        # Probabilities.
+        # Configuration files spell this key either "probas" or "probs"; both are
+        # accepted so that the values in the configuration are always the ones the
+        # model integrates.
+        if not hasattr(self, "probas"):
+            self.probas = getattr(self, "probs", [
                 0.8,    # Probability of showing symptoms
                 0.3,    # Probability of hospitalization
                 0.02,   # Probability of death for symptomatic hospitalized
                 0.3,    # Death probability after hospitalization
-            ]
+            ])
+        self.probs = self.probas
         
         # History
         self.list_S = []
@@ -238,7 +242,7 @@ class SEIRADH_Env(Base_Env):
         float
         ]:
         S, E, I_a, I_s, H, R , D = y
-        p_s, p_h, p_d, p_dh =  self.probs
+        p_s, p_h, p_d, p_dh =  self.probas
         N, beta, gamma, delta, theta, mu, sigma =  self.N, self.beta, self.gamma, self.delta, self.theta, self.mu, self.sigma
         
         dSdt = sigma * R - beta * S *(I_a + I_s)/N
